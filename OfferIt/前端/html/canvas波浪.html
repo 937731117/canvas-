@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			html,body {
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="myCanvas"></canvas>
+
+
+
+
+		<script src="../js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+			var WAVE_HEIGHT = 20 //波浪变化高度
+			var SCALE = 1 // 绘制速率
+			var CYCLE = 360 / SCALE
+			var TIME = 0
+			var boatRun = 0
+			var boatWidth = 300
+			var boatHeight = 120
+			var boatDown = 0.2
+			var boomWidth = 30
+			var boomHeight = 30
+			var birdWidth = 500
+			var birdHeight = 300
+			var birdX = 100
+			var birdY = 200
+			var birdFly = false
+			var fish1X = 200
+			var fish1Flag = false
+			var fish2X = 600
+			var fish2Flag = false
+			var fish_swimming = 0.8
+			function initCanvas() {
+				var c = document.getElementById("myCanvas")
+				var width = window.screen.width
+				var height = window.screen.height
+
+
+
+				var ctx = c.getContext("2d")
+				c.width = width
+				c.height = height
+
+				// start
+				window.requestAnimationFrame(function() {
+					draw(ctx, width, height)
+				})
+			}
+
+			function draw(ctx, width, height) {
+				ctx.clearRect(0, 0, width, height)
+
+				ctx.beginPath()
+				var img = new Image()
+				img.src = "../img/index.jpg"
+				ctx.globalAlpha = .8;
+				ctx.drawImage(img, 0, 0, width, height)
+				ctx.closePath()
+
+
+				TIME = (TIME + 2) % CYCLE
+				var angle = SCALE * TIME // 当前正弦角度
+				var dAngle = 60 // 两个波峰相差的角度
+
+				ctx.beginPath()
+				ctx.moveTo(0, height * 0.6 + distance(WAVE_HEIGHT, angle, 0))
+
+				ctx.bezierCurveTo(
+					width * 0.4,
+					height * 0.6 + distance(WAVE_HEIGHT, angle, dAngle),
+					width * 0.6,
+					height * 0.6 + distance(WAVE_HEIGHT, angle, 2 * dAngle),
+					width,
+					height * 0.6 + distance(WAVE_HEIGHT, angle, 3 * dAngle)
+				)
+				ctx.lineTo(width, height)
+				ctx.lineTo(0, height)
+				ctx.closePath()
+				ctx.globalAlpha = .5;
+
+				ctx.fillStyle = "#87CEFA"
+				ctx.fill()
+				ctx.closePath()
+
+
+				//tree
+				ctx.beginPath()
+				var img = new Image()
+				img.src = "../img/tree.png"
+				ctx.globalAlpha = 1;
+				ctx.drawImage(img, width - 500, height * 0.55 + distance(-WAVE_HEIGHT, angle, 0) + 45, 200, 100)
+				ctx.closePath()
+
+
+
+				//fish
+				ctx.beginPath()
+				var fish1 = new Image()
+				var fish1_1 = new Image()
+				var fish2 = new Image()
+				var fish2_1 = new Image()
+				fish1.src = "../img/fish1.png"
+				fish1_1.src = "../img/fish1_1.png"
+				fish2.src = "../img/fish2.png"
+				fish2_1.src = "../img/fish2_1.png"
+				ctx.globalAlpha = 1;
+
+
+
+				if (fish1X <= width - 600 && !fish1Flag) {
+					fish1X += fish_swimming+0.5
+					ctx.drawImage(fish1, fish1X, height * 0.55 + distance(-WAVE_HEIGHT, angle, 0) + 200, 100, 60)
+				} else {
+					fish1Flag = true
+					fish1X -= fish_swimming+0.5
+					ctx.drawImage(fish1_1, fish1X, height * 0.55 + distance(-WAVE_HEIGHT, angle, 0) + 200, 100, 60)
+					fish1X <= 200 ? fish1Flag=false:fish1Flag=true
+				}
+
+				if (fish2X >= 0 && !fish2Flag) {
+					fish2X -= fish_swimming
+					ctx.drawImage(fish2, fish2X, height * 0.55 + distance(-WAVE_HEIGHT+50, angle, 0) + 200, 100, 60)
+				}else{					
+						fish2Flag = true
+						fish2X += fish_swimming
+						ctx.drawImage(fish2_1, fish2X, height * 0.55 + distance(-WAVE_HEIGHT+50, angle, 0) + 200, 100, 60)
+						fish2X >= width/2+200 ? fish2Flag=false:fish2Flag=true
+				}
+
+
+
+
+
+
+
+				ctx.beginPath()
+				ctx.moveTo(0, height * 0.65 + distance(WAVE_HEIGHT, angle, -30))
+				ctx.bezierCurveTo(
+					width * 0.3,
+					height * 0.65 + distance(WAVE_HEIGHT, angle, dAngle - 30),
+					width * 0.7,
+					height * 0.65 + distance(WAVE_HEIGHT, angle, 2 * dAngle - 30),
+					width,
+					height * 0.65 + distance(WAVE_HEIGHT, angle, 3 * dAngle - 30)
+				)
+				ctx.lineTo(width, height)
+				ctx.lineTo(0, height)
+				ctx.closePath()
+				ctx.globalAlpha = .6;
+
+				ctx.fillStyle = "#008B8B"
+				ctx.fill()
+				ctx.closePath()
+
+				ctx.beginPath()
+				var bird1 = new Image()
+				bird1.src = "../img/bird1.png"
+				var bird2 = new Image()
+				bird2.src = "../img/bird2.png"
+				ctx.globalAlpha = 1;
+				birdWidth -= 0.8
+				birdHeight -= 0.8
+				birdX += 5
+				birdY -= 0.5
+				
+				if(!birdFly){
+					ctx.drawImage(bird1, birdX, birdY, birdWidth, birdHeight)
+					setTimeout(function(){
+						birdFly=true
+					},500)
+					
+				}else{
+					ctx.drawImage(bird2, birdX, birdY, birdWidth, birdHeight)
+					setTimeout(function(){
+						birdFly=false
+					},500)
+				}
+				ctx.closePath()
+				if (birdY <= 0) {
+					birdWidth = 500
+					birdHeight = 300
+					birdX = 0
+					birdY = 200
+				}
+
+
+
+
+
+				ctx.beginPath()
+				var img = new Image()
+
+				img.src = "../img/boat.png"
+				ctx.globalAlpha = .8;
+				ctx.restore()
+
+
+
+
+				if (boatRun >= width) {
+					boatRun = -300
+				} else {
+					boatRun += 0.8
+				}
+
+				$(document).on('mousewheel DOMMouseScroll', onMouseScroll);
+
+				function onMouseScroll(e) {
+					// e.preventDefault();
+					var wheel = e.originalEvent.wheelDelta || -e.originalEvent.detail;
+					var delta = Math.max(-1, Math.min(1, wheel));
+					if (delta < 0) { //向下滚动
+						boatWidth += 0.5
+						boatHeight += 0.5
+					} else { //向上滚动
+						boatWidth -= 0.5
+						boatHeight -= 0.5
+					}
+				}
+				if (boatRun >= width - 700) {
+					var boat_down = new Image()
+					var boom = new Image()
+					boat_down.src = "../img/boat_down.png"
+					boom.src = "../img/boom2.png"
+					boatRun = width - 700
+					boatDown++;
+					boomWidth += 5
+					boomHeight += 5
+					ctx.drawImage(boat_down, boatRun + 100, height * 0.55 + distance(-WAVE_HEIGHT / 10, angle, 0) + boatDown,
+						boatHeight, boatWidth)
+					ctx.drawImage(boom, boatRun + 200 - boomWidth / 2, height * 0.55 + distance(-WAVE_HEIGHT / 10, angle, 0) -
+						boomHeight / 3, boomWidth, boomHeight)
+					if (boatDown >= 200) {
+						boatRun = -300
+						boatDown = 0
+						boomWidth = 30
+						boomHeight = 30
+					}
+				} else {
+					ctx.drawImage(img, boatRun, height * 0.55 + distance(-WAVE_HEIGHT / 10, angle, 0), boatWidth, boatHeight)
+				}
+
+				ctx.closePath()
+
+
+				function distance(height, currAngle, diffAngle) {
+					return height * Math.cos((((currAngle - diffAngle) % 360) * Math.PI) / 180)
+				}
+
+				// animate
+				window.requestAnimationFrame(function() {
+					draw(ctx, width, height)
+				})
+			}
+
+			initCanvas()
+		</script>
+	</body>
+</html>
