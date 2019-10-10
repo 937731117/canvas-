@@ -4,7 +4,8 @@
 		<meta charset="utf-8">
 		<title></title>
 		<style type="text/css">
-			html,body {
+			html,
+			body {
 				overflow: hidden;
 			}
 		</style>
@@ -16,6 +17,7 @@
 
 
 		<script src="../js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/people.js" type="text/javascript" charset="utf-8"></script>
 		<script>
 			var WAVE_HEIGHT = 20 //波浪变化高度
 			var SCALE = 1 // 绘制速率
@@ -37,6 +39,10 @@
 			var fish2X = 600
 			var fish2Flag = false
 			var fish_swimming = 0.8
+			var boomFlag = true
+			
+			
+			
 			function initCanvas() {
 				var c = document.getElementById("myCanvas")
 				var width = window.screen.width
@@ -99,6 +105,10 @@
 				ctx.closePath()
 
 
+				//people
+				PeopleSwimming(ctx,width,height,distance,angle,WAVE_HEIGHT,boatRun,boatDown)
+
+
 
 				//fish
 				ctx.beginPath()
@@ -114,24 +124,25 @@
 
 
 
+
 				if (fish1X <= width - 600 && !fish1Flag) {
-					fish1X += fish_swimming+0.5
+					fish1X += fish_swimming + 0.5
 					ctx.drawImage(fish1, fish1X, height * 0.55 + distance(-WAVE_HEIGHT, angle, 0) + 200, 100, 60)
 				} else {
 					fish1Flag = true
-					fish1X -= fish_swimming+0.5
+					fish1X -= fish_swimming + 0.5
 					ctx.drawImage(fish1_1, fish1X, height * 0.55 + distance(-WAVE_HEIGHT, angle, 0) + 200, 100, 60)
-					fish1X <= 200 ? fish1Flag=false:fish1Flag=true
+					fish1X <= 200 ? fish1Flag = false : fish1Flag = true
 				}
 
 				if (fish2X >= 0 && !fish2Flag) {
 					fish2X -= fish_swimming
-					ctx.drawImage(fish2, fish2X, height * 0.55 + distance(-WAVE_HEIGHT+50, angle, 0) + 200, 100, 60)
-				}else{					
-						fish2Flag = true
-						fish2X += fish_swimming
-						ctx.drawImage(fish2_1, fish2X, height * 0.55 + distance(-WAVE_HEIGHT+50, angle, 0) + 200, 100, 60)
-						fish2X >= width/2+200 ? fish2Flag=false:fish2Flag=true
+					ctx.drawImage(fish2, fish2X, height * 0.55 + distance(-WAVE_HEIGHT + 50, angle, 0) + 200, 100, 60)
+				} else {
+					fish2Flag = true
+					fish2X += fish_swimming
+					ctx.drawImage(fish2_1, fish2X, height * 0.55 + distance(-WAVE_HEIGHT + 50, angle, 0) + 200, 100, 60)
+					fish2X >= width / 2 + 200 ? fish2Flag = false : fish2Flag = true
 				}
 
 
@@ -169,18 +180,18 @@
 				birdHeight -= 0.8
 				birdX += 5
 				birdY -= 0.5
-				
-				if(!birdFly){
+
+				if (!birdFly) {
 					ctx.drawImage(bird1, birdX, birdY, birdWidth, birdHeight)
-					setTimeout(function(){
-						birdFly=true
-					},500)
-					
-				}else{
+					setTimeout(function() {
+						birdFly = true
+					}, 500)
+
+				} else {
 					ctx.drawImage(bird2, birdX, birdY, birdWidth, birdHeight)
-					setTimeout(function(){
-						birdFly=false
-					},500)
+					setTimeout(function() {
+						birdFly = false
+					}, 500)
 				}
 				ctx.closePath()
 				if (birdY <= 0) {
@@ -207,7 +218,7 @@
 				if (boatRun >= width) {
 					boatRun = -300
 				} else {
-					boatRun += 0.8
+					boatRun += 8
 				}
 
 				$(document).on('mousewheel DOMMouseScroll', onMouseScroll);
@@ -231,18 +242,27 @@
 					boom.src = "../img/boom2.png"
 					boatRun = width - 700
 					boatDown++;
-					boomWidth += 5
-					boomHeight += 5
+
 					ctx.drawImage(boat_down, boatRun + 100, height * 0.55 + distance(-WAVE_HEIGHT / 10, angle, 0) + boatDown,
 						boatHeight, boatWidth)
-					ctx.drawImage(boom, boatRun + 200 - boomWidth / 2, height * 0.55 + distance(-WAVE_HEIGHT / 10, angle, 0) -
-						boomHeight / 3, boomWidth, boomHeight)
+					if (boomWidth <= 300) {
+						if(boomFlag){
+							boomWidth += 15
+							boomHeight += 15
+							ctx.drawImage(boom, boatRun + 200 - boomWidth / 2, height * 0.55 + distance(-WAVE_HEIGHT / 10, angle, 0) -
+								boomHeight / 3, boomWidth, boomHeight)
+						}	
+					} else {
+						boomFlag = false
+						boomWidth = 0
+						boomHeight = 0
+					}
 					if (boatDown >= 200) {
 						boatRun = -300
 						boatDown = 0
-						boomWidth = 30
-						boomHeight = 30
+						boomFlag = true
 					}
+
 				} else {
 					ctx.drawImage(img, boatRun, height * 0.55 + distance(-WAVE_HEIGHT / 10, angle, 0), boatWidth, boatHeight)
 				}
